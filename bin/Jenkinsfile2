@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('SCM') {
+            steps {
+               git branch: 'main', url: 'https://github.com/Stywar/FirstDevOpsJob'
+            }
+        }
+        
+   
+     stage ("Docker Build") {
+           
+           steps{
+             // docker login  
+             bat(script: 'docker build -t antony0618/servicejava .' , returnStdout:true);
+             bat(script: 'docker push antony0618/servicejava' , returnStdout:true);  
+           }
+       }   
+       
+       
+        stage ("Deploy AKS") {
+           steps {
+            bat(script:'az login --service-principal --username 60445a5a-4c7d-404e-96a0-0d5c83c4978f --password pnQ8Q~_F_NOiJU4qavvJrKll.z8n2hgwl_I7NbM~ --tenant 74343d69-5375-4c7a-8cc9-08986488c964',, returnStdout: true);   
+            bat(script: 'az aks get-credentials --resource-group Devops --name AksDevops & kubectl config get-contexts --kubeconfig=%KUBE_PATH_CONFIG%', returnStdout: true);
+            bat(script: 'kubectl config use-context AksDevops --kubeconfig=%KUBE_PATH_CONFIG%', returnStdout: true);
+            bat(script: 'kubectl apply -f Devops.yaml --kubeconfig=%KUBE_PATH_CONFIG%', returnStdout: true);
+            bat(script: 'kubectl rollout restart deployment app-deployment-devops --kubeconfig=%KUBE_PATH_CONFIG%', returnStdout: true);
+           }
+       }
+    }
+}
