@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: service-devops
-        image: antony0618/servicejava:latest
+        image: polyglotstudy/servicejava:latest
         ports:
         - containerPort: 8080
 ---
